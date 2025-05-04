@@ -1,0 +1,24 @@
+﻿  Source.cpp
+C:\Users\Burhan\Desktop\Restaurant_Project_Class\Restaurant_Project_Class\Source.cpp(75,11): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Burhan\Desktop\Restaurant_Project_Class\Restaurant_Project_Class\Source.cpp(207,14): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Burhan\Desktop\Restaurant_Project_Class\Restaurant_Project_Class\Source.cpp(207,52): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Burhan\Desktop\Restaurant_Project_Class\Restaurant_Project_Class\Source.cpp(208,12): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Burhan\Desktop\Restaurant_Project_Class\Restaurant_Project_Class\Source.cpp(216,30): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Burhan\Desktop\Restaurant_Project_Class\Restaurant_Project_Class\Source.cpp(217,34): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Burhan\Desktop\Restaurant_Project_Class\Restaurant_Project_Class\Source.cpp(218,38): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Burhan\Desktop\Restaurant_Project_Class\Restaurant_Project_Class\Source.cpp(219,30): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Burhan\Desktop\Restaurant_Project_Class\Restaurant_Project_Class\Source.cpp(220,29): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Burhan\Desktop\Restaurant_Project_Class\Restaurant_Project_Class\Source.cpp(221,32): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Burhan\Desktop\Restaurant_Project_Class\Restaurant_Project_Class\Source.cpp(253,14): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
+C:\Users\Burhan\Desktop\Restaurant_Project_Class\Restaurant_Project_Class\Source.cpp(284,23): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\Burhan\Desktop\Restaurant_Project_Class\Restaurant_Project_Class\Source.cpp(311,25): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Burhan\Desktop\Restaurant_Project_Class\Restaurant_Project_Class\Source.cpp(355,24): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Burhan\Desktop\Restaurant_Project_Class\Restaurant_Project_Class\Source.cpp(378,13): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Burhan\Desktop\Restaurant_Project_Class\Restaurant_Project_Class\Source.cpp(379,12): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Burhan\Desktop\Restaurant_Project_Class\Restaurant_Project_Class\Source.cpp(428,29): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Burhan\Desktop\Restaurant_Project_Class\Restaurant_Project_Class\Source.cpp(429,9): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Burhan\Desktop\Restaurant_Project_Class\Restaurant_Project_Class\Source.cpp(431,30): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Burhan\Desktop\Restaurant_Project_Class\Restaurant_Project_Class\Source.cpp(493,6): warning C4326: return type of 'main' should be 'int' instead of 'void'
+C:\Users\Burhan\Desktop\Restaurant_Project_Class\Restaurant_Project_Class\Source.cpp(503,42): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Burhan\Desktop\Restaurant_Project_Class\Restaurant_Project_Class\Source.cpp(504,42): warning C4305: 'argument': truncation from 'double' to 'float'
+  Restaurant_Project_Class.vcxproj -> C:\Users\Burhan\Desktop\Restaurant_Project_Class\x64\Debug\Restaurant_Project_Class.exe
