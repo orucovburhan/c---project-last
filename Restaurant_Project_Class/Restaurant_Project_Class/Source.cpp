@@ -291,9 +291,28 @@ public:
 };
 
 class IngridientQuantity {
-	Ingridient ingridient;
-	float TotalKG;
+	string name;
+	float totalKG;
 public:
+	IngridientQuantity() {};
+	IngridientQuantity(string name, float totalKG) {
+		this->name = name;
+		this->totalKG = totalKG;
+	}
+	string GetIngridientName() {
+		return name;
+	}
+	float GetTotalKG() {
+		return totalKG;
+	}
+	void SetTotalKG(float kg) {
+		if (kg > 0) {
+			totalKG = kg;
+		}
+		else {
+			throw string("Weight can not be less than zero...");
+		}
+	}
 
 
 };
@@ -334,6 +353,13 @@ public:
 	void SetIngridients(DoubleLinkedList<Ingridient>& ingridients) {
 		if (ingridients.Size() != 0) {
 			this->ingridients = ingridients;
+			float price = 0;
+			for (size_t i = 0; i < ingridients.Size(); i++)
+			{
+				price += ingridients[i].GetTotalPrice();
+			}
+			this->price = price;
+
 		}
 		else {
 			throw string("At least 1 ingridient must be setted...");
@@ -368,14 +394,25 @@ class Restaurant {
 	float wallet;
 	static int count;
 public:
-	
+
 	Restaurant() {
 		count++;
 	}
+
 	int SearchFood(string name) {
 		for (size_t i = 0; i < menu.Size(); i++)
 		{
 			if (menu[i].GetName() == name) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	int SearchInStock(string name) {
+		for (size_t i = 0; i < stock.Size(); i++)
+		{
+			if (stock[i].GetIngridientName() == name) {
 				return i;
 			}
 		}
@@ -393,6 +430,16 @@ public:
 		}
 	}
 
+	void ChangeName(string name, string new_name) {
+		int index = SearchFood(name);
+		if (index == -1) {
+			cout << "This food not found.." << endl;
+		}
+		else {
+			menu[index].SetName(new_name);
+		}
+	}
+
 	void ChangeIngridients(DoubleLinkedList<Ingridient>& new_ingridients, string name) {
 		int index = SearchFood(name);
 		if (index == -1) {
@@ -402,6 +449,7 @@ public:
 			menu[index].SetIngridients(new_ingridients);
 		}
 	}
+
 	void ChangePrice(string name, float price) {
 		int index = SearchFood(name);
 		if (index == -1) {
@@ -423,6 +471,9 @@ public:
 	}
 
 	void ShowAllFoods() {
+		if (menu.Size() == 0) {
+			cout << "Menu is empty..." << endl;
+		}
 		for (size_t i = 0; i < menu.Size(); i++)
 		{
 			cout << "Name: " << menu[i].GetName() << endl;
@@ -430,6 +481,26 @@ public:
 			cout << endl;
 			cout << "Price: " << menu[i].GetPrice() << endl;
 			cout << "_____________________________________________" << endl;
+		}
+	}
+
+	void AddIngridientToStock(string name, float kg) {
+		IngridientQuantity ingridientQuantity(name, kg);
+		stock.AddEnd(ingridientQuantity);
+	}
+
+	void ChangeIngridientQuantity(string name, float kg) {
+		int index = SearchInStock(name);
+		stock[index].SetTotalKG(kg);
+	}
+
+	void ShowStock() {
+		for (size_t i = 0; i < stock.Size(); i++)
+		{
+			cout << "Name: " << stock[i].GetIngridientName() << endl;
+			cout << "Weight: " << stock[i].GetTotalKG() << " KG" << endl;
+			cout << "________________________________________" << endl;
+
 		}
 	}
 	~Restaurant() {
@@ -471,18 +542,18 @@ public:
 	void AddFood(DoubleLinkedList<Ingridient>& ingridients, string name) {
 		menu.AddFood(ingridients, name);
 	}
-	/*void DeleteUser(string username, string password, string mail) {
-		userManager.DeleteUser(username, password, mail);
+	void DeleteFood(string name) {
+		menu.DeleteFood(name);
 	}
-	void ChangeUserPassword(string username, string password, string new_password, string mail) {
-		userManager.ChangePassword(username, password, new_password, mail);
+	void ChangeFoodName(string name, string new_name) {
+		menu.ChangeName(name, new_name);
 	}
-	void ChangeUserMail(string username, string password, string mail, string new_mail) {
-		userManager.ChangeMail(username, password, mail, new_mail);
+	void ChangeIngridients(DoubleLinkedList<Ingridient>& new_ingridients, string name) {
+		menu.ChangeIngridients(new_ingridients, name);
 	}
-	void ChangeUserWallet(string username, string password, string mail, float wallet) {
-		userManager.ChangeWallet(username, password, wallet, mail);
-	}*/
+	void ChangeTotalPrice(string name, float new_price) {
+		menu.ChangePrice(name, new_price);
+	}
 	void ShowAllFoods() {
 		menu.ShowAllFoods();
 	}
@@ -500,11 +571,18 @@ void main() {
 	Restaurant restaurant;
 
 	DoubleLinkedList<Ingridient> ingridients;
+	DoubleLinkedList<Ingridient> ingridients2;
 	ingridients.AddEnd(Ingridient("Tomato", 0.01, 500));
 	ingridients.AddEnd(Ingridient("Potato", 0.02, 300));
+	ingridients2.AddEnd(Ingridient("Cucumber ", 0.01, 300));
+	ingridients2.AddEnd(Ingridient("Chicken", 0.03, 300));
 	restaurant.AddFood(ingridients, "Pasta");
-	
-	restaurant.ShowAllFoods();
+	restaurant.AddFood(ingridients2, "Chesar");
+	/*restaurant.ChangeIngridients(ingridients, "Chesar");*/
+	restaurant.ChangePrice("Chesar", 123);
+	restaurant.AddIngridientToStock("Tomato", 15);
+	restaurant.AddIngridientToStock("Potato", 20);
+	restaurant.ShowStock();
 
 
 
