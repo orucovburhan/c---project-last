@@ -1,9 +1,14 @@
 #pragma once
 
-
+#include <windows.h>
 #include<iostream>
 #include<cassert>
 #include<string>
+#include<sstream>
+#include<fstream>
+#include <cctype>
+#include <vector>
+
 using namespace std;
 template<class T>
 class DoubleLinkedList {
@@ -12,6 +17,7 @@ class DoubleLinkedList {
 		T data;
 		Node* prev;
 		Node* next;
+		Node() {};
 		Node(const T& data) {
 			this->data = data;
 			this->prev = nullptr;
@@ -37,6 +43,22 @@ public:
 
 		size++;
 
+	}
+	// Add these methods to enable range-based for loops
+	T* begin() {
+		return head ? &head->data : nullptr;
+	}
+
+	T* end() {
+		return nullptr; // Indicates the end of the list
+	}
+
+	const T* begin() const {
+		return head ? &head->data : nullptr;
+	}
+
+	const T* end() const {
+		return nullptr; // Indicates the end of the list
 	}
 	DoubleLinkedList(const DoubleLinkedList& other) {
 		Node* current = other.head; 
@@ -131,7 +153,10 @@ public:
 			current_node->prev->next = current_node->next;
 			current_node->next->prev = current_node->prev;
 			delete current_node;
+			size--;
 		}
+		
+		
 	}
 
 
