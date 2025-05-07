@@ -192,6 +192,14 @@ public:
 
 	void AddToHistory(Food food) {
 		this->history.AddEnd(food);
+
+	}
+	void AddToHistoryList(DoubleLinkedList<Food> food) {
+
+		for (size_t i = 0; i < food.Size(); i++)
+		{
+			this->history.AddEnd(food[i]);
+		}
 	}
 
 	string GetUsername() const {
@@ -258,7 +266,9 @@ public:
 
 
 	void ShowHistory() {
-
+		if (history.Size() == 0) {
+			cout << "You do not have any order yet...";
+		}
 		for (size_t i = 0; i < history.Size(); i++)
 		{
 			cout << "Name: " << history[i].GetName() << " - " << history[i].GetPrice() << endl;
@@ -380,8 +390,8 @@ public:
 
 		while (getline(fs, row)) {
 			if (row.rfind("[User:", 0) == 0) {
-				// Found a user section
-				string currentUser = row.substr(7, row.length() - 8); // extract username from [User: name]
+				
+				string currentUser = row.substr(7, row.length() - 8);
 				userFound = (currentUser == username);
 				continue;
 			}
@@ -636,8 +646,8 @@ public:
 	Restaurant() {
 		count++;
 	}
-	
-	
+
+
 	int SearchFood(string name) {
 		for (size_t i = 0; i < menu.Size(); i++)
 		{
@@ -762,6 +772,9 @@ public:
 		int index = SearchFood(name);
 		if (menu.Size() == 0) {
 			cout << "Menu is empty..." << endl;
+		}
+		else if (index == -1) {
+			cout << "Food not found" << endl;
 		}
 		else {
 			cout << "Name: " << menu[index].GetName() << endl;
@@ -1430,7 +1443,7 @@ void main() {
 					try
 					{
 						flag = admin.SignIn(username, password);
-						User user1 = admin.SearchUserReturnUser(username);
+						User& user1 = admin.SearchUserReturnUser(username);
 						if (flag == true) {
 							system("cls");
 							cout << "Welcome" << endl;
@@ -1469,11 +1482,7 @@ void main() {
 									}
 									catch (string ex)
 									{
-										cin.ignore();
-										cout << "Enter name: ";
-										getline(cin, name);
-										restaurant.ShowOneFood(name);
-										food = restaurant.ReturnOneFood(name);
+										main();
 									}
 
 									cout << "1.Add to card" << endl;
@@ -1529,18 +1538,20 @@ void main() {
 											try
 											{
 												cout << "Successfully bought..." << endl;
-												for (size_t i = 0; i < user1.card.Size(); i++)
+												
+												restaurant.IncreaseWallet(cardNumber, month, year, cvv,user1.GetTotalPriceCard());
+												user1.AddToHistoryList(user1.card);
+
+												
+												i = 3;
+												restaurant.ShowAllFoods();
+												for (size_t i = 0; i < user1.card.Size(); )
 												{
-													user1.AddToHistory(user1.card[i]);
+													if (user1.card.Size() != 0) {
+														user1.card.DeleteEnd();
+													}
 												}
 												user1.WriteToFileHistory(user1.GetUsername(), user1.history);
-												i = 3;
-												
-												restaurant.ShowAllFoods();
-												for (size_t i = 0; i < user1.card.Size(); i++)
-												{
-													user1.card.DeleteEnd();
-												}
 											}
 											catch (string ex)
 											{
