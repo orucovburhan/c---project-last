@@ -1182,9 +1182,9 @@ void main() {
 							cout << "Delete food" << endl;
 							cout << "Enter name: ";
 							getline(cin, name);
-							int index = admin.SearchUser(name);
-							admin.users.DeleteIndex(index);
-							admin.WriteToFile(admin.users);
+							int index = restaurant.SearchFood(name);
+							restaurant.menu.DeleteIndex(index);
+							restaurant.WriteToFileFood(restaurant.menu);
 							cout << "Deleted..." << endl;
 						}
 						else if (choice2 == 6) {
@@ -1251,7 +1251,6 @@ void main() {
 							cin.ignore();
 							system("cls");
 							string name;
-
 							cout << "Search user" << endl;
 							cout << "Enter name: ";
 							getline(cin, name);
