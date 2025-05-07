@@ -2,13 +2,13 @@
 
 string toUpperCase(string str) {
 	for (int i = 0; i < str.length(); i++) {
-		str[i] = toupper(str[i]); 
+		str[i] = toupper(str[i]);
 	}
 	return str;
 }
 string toLowerCase(string str) {
 	for (int i = 0; i < str.length(); i++) {
-		str[i] = tolower(str[i]); 
+		str[i] = tolower(str[i]);
 	}
 	return str;
 }
@@ -162,7 +162,7 @@ class User {
 	string password;
 	string phone_number;
 	string mail;
-	float wallet = 0;
+
 	int age;
 
 
@@ -174,7 +174,7 @@ public:
 		this->password = "";
 		this->phone_number = "";
 		this->mail = "";
-		this->wallet = 0.0;
+
 		this->age = 0;
 
 	}
@@ -183,12 +183,13 @@ public:
 		SetPassword(password);
 		SetPhoneNumber(phone_number);
 		SetMail(mail);
-		SetWallet(0);
+
 		SetAge(age);
 	}
 	void AddToCard(Food food) {
 		card.AddEnd(food);
 	}
+
 	void AddToHistory(Food food) {
 		this->history.AddEnd(food);
 	}
@@ -205,9 +206,7 @@ public:
 	string GetMail() const {
 		return mail;
 	}
-	float GetWallet() {
-		return wallet;
-	}
+
 	int GetAge() const {
 		return age;
 	}
@@ -247,14 +246,7 @@ public:
 			throw string("Mail is wrong...");
 		}
 	}
-	void SetWallet(float wallet) {
-		if (wallet >= 0) {
-			this->wallet = wallet;
-		}
-		else {
-			throw string("Wallet can not be less than 0...");
-		}
-	}
+
 	void SetAge(int age) {
 		if (age >= 15) {
 			this->age = age;
@@ -263,18 +255,7 @@ public:
 			throw string("Age is lower than 15...");
 		}
 	}
-	void IncreaseWallet(string cardNumber, int month, int year, string cvv, float new_money) {
-		if (cardNumber.length() == 16 && cvv.length() == 3 && (month > 0 && month < 13)) {
-			wallet += new_money;
-		}
-		else {
-			throw string("Wrong card details...");
-		}
-	}
 
-	void ShowWallet() {
-		cout << "Wallet: " << wallet << endl;
-	}
 
 	void ShowHistory() {
 
@@ -308,24 +289,9 @@ public:
 		}
 		return total_price;
 	}
-	void BuyFood(User& user, string& cardNumber, string& cvv, int& month, int& year) {
-		if (cardNumber.length() == 16 && cvv.length() == 3 && (month > 0 && month < 13)) {
-			if (user.GetWallet() >= user.GetTotalPriceCard())
-			{
-				user.SetWallet(user.GetWallet() - user.GetTotalPriceCard());
-				
-			}
-			else {
-				throw string("Not enough money...");
-			}
 
-		}
-		else {
-			throw string("Wrong card details...");
-		}
-	}
-	void WriteToFileHistory(DoubleLinkedList<Food>& history, const string filename = "history.txt") {
-		fstream fs(filename, ios::out);
+	void WriteToFileHistory(const string& username, DoubleLinkedList<Food>& history, const string& filename = "history.txt") {
+		fstream fs(filename, ios::app); // append mode
 		if (!fs.is_open()) {
 			cerr << "Error: Unable to open file " << filename << endl;
 			throw string("File couldn't open!");
@@ -336,25 +302,32 @@ public:
 			fs.close();
 			return;
 		}
+
+		fs << "[User: " << username << "]\n"; // header to identify the user
+
 		for (size_t i = 0; i < history.Size(); i++) {
 			Food food = history[i];
 			fs << food.GetName() << "#"
 				<< food.GetPrice() << "#"
 				<< food.GetDescription() << "#";
+
 			DoubleLinkedList<Ingridient> ingredients = food.GetIngridients();
 			for (size_t j = 0; j < ingredients.Size(); j++) {
 				Ingridient ingredient = ingredients[j];
-				fs << ingredient.GetName() << ":" << ingredient.GetPricePerGram() << ":" << ingredient.GetWeightGram();
-				
+				fs << ingredient.GetName() << ":"
+					<< ingredient.GetPricePerGram() << ":"
+					<< ingredient.GetWeightGram();
 				if (j != ingredients.Size() - 1) {
 					fs << ",";
 				}
 			}
 			fs << "\n";
 		}
+
+		fs << "\n"; // empty line between users
 		fs.close();
-		
 	}
+
 	void ReadFromFileHistory(DoubleLinkedList<Food>& history, const string& filename = "history.txt") {
 		fstream fs(filename, ios::in);
 		if (!fs.is_open()) {
@@ -391,10 +364,70 @@ public:
 			food.SetPrice(price);
 			history.AddEnd(food);
 		}
+
 		fs.close();
 	}
 
-	
+	void ReadFromFileHistoryOneUser(const string& username, DoubleLinkedList<Food>& history, const string& filename = "history.txt") {
+		fstream fs(filename, ios::in);
+		if (!fs.is_open()) {
+			cerr << "Error: Unable to open file " << filename << endl;
+			throw string("File couldn't open!");
+		}
+
+		string row;
+		bool userFound = false;
+
+		while (getline(fs, row)) {
+			if (row.rfind("[User:", 0) == 0) {
+				// Found a user section
+				string currentUser = row.substr(7, row.length() - 8); // extract username from [User: name]
+				userFound = (currentUser == username);
+				continue;
+			}
+
+			if (userFound && !row.empty()) {
+				stringstream ss(row);
+				string name, priceStr, description, ingredientsStr;
+
+				getline(ss, name, '#');
+				getline(ss, priceStr, '#');
+				getline(ss, description, '#');
+				getline(ss, ingredientsStr, '#');
+
+				float price = stof(priceStr);
+				DoubleLinkedList<Ingridient> ingredients;
+
+				stringstream ingredientsStream(ingredientsStr);
+				string ingredientData;
+
+				while (getline(ingredientsStream, ingredientData, ',')) {
+					stringstream ingredientStream(ingredientData);
+					string ingredientName, pricePerGramStr, weightGramStr;
+
+					getline(ingredientStream, ingredientName, ':');
+					getline(ingredientStream, pricePerGramStr, ':');
+					getline(ingredientStream, weightGramStr, ':');
+
+					float pricePerGram = stof(pricePerGramStr);
+					float weightGram = stof(weightGramStr);
+
+					Ingridient ingredient(ingredientName, pricePerGram, weightGram);
+					ingredients.AddEnd(ingredient);
+				}
+
+				Food food(ingredients, name, description);
+				food.SetPrice(price);
+				history.AddEnd(food);
+			}
+			else if (userFound && row.empty()) {
+				break; // Stop if we hit empty line after current user's data
+			}
+		}
+
+		fs.close();
+	}
+
 };
 class Admin {
 public:
@@ -470,20 +503,7 @@ public:
 			}
 		}
 	}
-	void ChangeWallet(const string& username, const string& password, const float& wallet) {
-		int index = SearchUser(username);
-		if (index == -1) {
-			cout << "This user not found.." << endl;
-		}
-		else {
-			if (users[index].GetPassword() == password) {
-				users[index].SetWallet(wallet);
-			}
-			else {
-				throw string("Wrong password...");
-			}
-		}
-	}
+
 
 	void DeleteUser(const string& username) {
 		int index = SearchUser(username);
@@ -503,7 +523,7 @@ public:
 		}
 		return -1;
 	}
-	User SearchUserReturnUser(const string& username) {
+	User& SearchUserReturnUser(const string& username) {
 		for (size_t i = 0; i < users.Size(); i++) {
 			if (users[i].GetUsername() == username) {
 				return users[i];
@@ -520,7 +540,7 @@ public:
 				cout << "Phone number: " << users[i].GetPhoneNumber() << endl;
 				cout << "Mail: " << users[i].GetMail() << endl;
 				cout << "Age: " << users[i].GetAge() << endl;
-				cout << "Wallet: " << users[i].GetWallet() << endl;
+
 				cout << "___________________________________________" << endl;
 			}
 		}
@@ -540,7 +560,7 @@ public:
 			cout << "Phone number: " << users[i].GetPhoneNumber() << endl;
 			cout << "Mail: " << users[i].GetMail() << endl;
 			cout << "Age: " << users[i].GetAge() << endl;
-			cout << "Wallet: " << users[i].GetWallet() << endl;
+
 			cout << "___________________________________________" << endl;
 
 		}
@@ -568,12 +588,12 @@ public:
 				<< user.GetPassword() << "#"
 				<< user.GetPhoneNumber() << "#"
 				<< user.GetMail() << "#"
-				<< user.GetAge() << "#"
-				<< user.GetWallet() << "\n";
+				<< user.GetAge() << "#";
+
 		}
 
 		fs.close();
-		cout << "Users successfully written to file: " << filename << endl;
+
 	}
 
 	void ReadFromFile(DoubleLinkedList<User>& users, const string& filename = "users.txt") {
@@ -582,22 +602,21 @@ public:
 			string row;
 			while (getline(fs, row)) {
 				stringstream ss(row);
-				string username, password, phone, mail, ageStr, walletStr;
+				string username, password, phone, mail, ageStr;
 
 				getline(ss, username, '#');
 				getline(ss, password, '#');
 				getline(ss, phone, '#');
 				getline(ss, mail, '#');
 				getline(ss, ageStr, '#');
-				getline(ss, walletStr, '#');
 
 				int age = stoi(ageStr);
-				float wallet = stof(walletStr);
+
 
 				User user(username, password, phone, mail, age);
-				user.SetWallet(wallet);
 
-				users.AddEnd(user); 
+
+				users.AddEnd(user);
 			}
 			fs.close();
 		}
@@ -617,6 +636,8 @@ public:
 	Restaurant() {
 		count++;
 	}
+	
+	
 	int SearchFood(string name) {
 		for (size_t i = 0; i < menu.Size(); i++)
 		{
@@ -805,7 +826,7 @@ public:
 		}
 	}
 	void ShowWallet() {
-		cout << "Wallet: " << wallet << endl;
+		cout << "Budget: " << wallet << endl;
 	}
 	void ShowStock() {
 		if (stock.Size() != 0) {
@@ -837,9 +858,7 @@ public:
 	void ChangeUserMail(string username, string password, string new_mail) {
 		admin.ChangeMail(username, password, new_mail);
 	}
-	void ChangeUserWallet(string username, string password, float wallet) {
-		admin.ChangeWallet(username, password, wallet);
-	}
+
 	void WriteToFileFood(DoubleLinkedList<Food>& menu, const string filename = "menu.txt") {
 		fstream fs(filename, ios::out);
 		if (!fs.is_open()) {
@@ -969,7 +988,8 @@ void SetColor(int color) {
 void main() {
 	Admin admin;
 	Restaurant restaurant;
-	User user;
+
+
 	try
 	{
 		admin.ReadFromFile(admin.users);
@@ -997,7 +1017,7 @@ void main() {
 
 		restaurant.WriteToFileIngridients(restaurant.stock);
 	}
-	
+
 
 	int choice;
 	SetColor(14);
@@ -1423,6 +1443,7 @@ void main() {
 								cout << "|2.Search meal: " << endl;
 								cout << "|3.History: " << endl;
 								cout << "|4.Card: " << endl;
+
 								cout << "|5.Back to register: " << endl;
 								cout << "|6.Exit: " << endl;
 								cout << "|Choose: ";
@@ -1437,32 +1458,32 @@ void main() {
 									string name;
 
 									Food food;
-									
+
+									cin.ignore();
+									cout << "Enter name: ";
+									getline(cin, name);
+									try
+									{
+										restaurant.ShowOneFood(name);
+										food = restaurant.ReturnOneFood(name);
+									}
+									catch (string ex)
+									{
 										cin.ignore();
 										cout << "Enter name: ";
 										getline(cin, name);
-										try
-										{
-											restaurant.ShowOneFood(name);
-											food = restaurant.ReturnOneFood(name);
-										}
-										catch (string ex)
-										{
-											cin.ignore();
-											cout << "Enter name: ";
-											getline(cin, name);
-											restaurant.ShowOneFood(name);
-											food = restaurant.ReturnOneFood(name);
-										}
-									
+										restaurant.ShowOneFood(name);
+										food = restaurant.ReturnOneFood(name);
+									}
+
 									cout << "1.Add to card" << endl;
 									cout << "2.Back" << endl;
 									cout << "Choose: ";
 									cin >> choice5;
 									if (choice5 == 1) {
-										
+
 										user1.AddToCard(food);
-										
+
 										cout << "Added..." << endl;
 										Sleep(350);
 										system("cls");
@@ -1477,7 +1498,7 @@ void main() {
 								}
 								else if (choice3 == 3) {
 									system("cls");
-									user1.ReadFromFileHistory(user1.history);
+									user1.ReadFromFileHistoryOneUser(user1.GetUsername(), user1.history);
 									user1.ShowHistory();
 								}
 
@@ -1507,15 +1528,19 @@ void main() {
 											getline(cin, cvv);
 											try
 											{
-												user1.IncreaseWallet("1232123212321232", 11, 2028, "344", 100);
-												user1.BuyFood(user1, cardNumber, cvv, month, year);
-												user1.SetWallet(user1.GetWallet() - user1.GetTotalPriceCard());
+												cout << "Successfully bought..." << endl;
 												for (size_t i = 0; i < user1.card.Size(); i++)
 												{
 													user1.AddToHistory(user1.card[i]);
 												}
-												user1.WriteToFileHistory(user1.history);
+												user1.WriteToFileHistory(user1.GetUsername(), user1.history);
 												i = 3;
+												
+												restaurant.ShowAllFoods();
+												for (size_t i = 0; i < user1.card.Size(); i++)
+												{
+													user1.card.DeleteEnd();
+												}
 											}
 											catch (string ex)
 											{
@@ -1530,6 +1555,7 @@ void main() {
 										restaurant.ShowAllFoods();
 									}
 								}
+
 								else if (choice3 == 5) {
 									system("cls");
 									main();
