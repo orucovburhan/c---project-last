@@ -236,7 +236,7 @@ public:
 			throw string("Password is short...");
 		}
 	}
-	//055 123 12 32
+
 	void SetPhoneNumber(string phone_number) {
 		if (phone_number.length() == 14) {
 			this->phone_number = phone_number;
@@ -301,7 +301,7 @@ public:
 	}
 
 	void WriteToFileHistory(const string& username, DoubleLinkedList<Food>& history, const string& filename = "history.txt") {
-		fstream fs(filename, ios::app); // append mode
+		fstream fs(filename, ios::app);
 		if (!fs.is_open()) {
 			cerr << "Error: Unable to open file " << filename << endl;
 			throw string("File couldn't open!");
@@ -313,7 +313,7 @@ public:
 			return;
 		}
 
-		fs << "[User: " << username << "]\n"; // header to identify the user
+		fs << "[User: " << username << "]\n";
 
 		for (size_t i = 0; i < history.Size(); i++) {
 			Food food = history[i];
@@ -334,7 +334,7 @@ public:
 			fs << "\n";
 		}
 
-		fs << "\n"; // empty line between users
+		fs << "\n";
 		fs.close();
 	}
 
@@ -344,35 +344,62 @@ public:
 			cerr << "Error: Unable to open file " << filename << endl;
 			throw string("File couldn't open!");
 		}
+
+		if (fs.peek() == std::ifstream::traits_type::eof()) {
+			cerr << "Error: File is empty." << endl;
+			fs.close();
+			return;
+		}
+
 		string row;
 		while (getline(fs, row)) {
+
 			stringstream ss(row);
 			string name, priceStr, description, ingredientsStr;
-			getline(ss, name, '#');
-			getline(ss, priceStr, '#');
-			getline(ss, description, '#');
-			getline(ss, ingredientsStr, '#');
-			float price = stof(priceStr);
-			DoubleLinkedList<Ingridient> ingredients;
-			stringstream ingredientsStream(ingredientsStr);
-			string ingredientData;
-			while (getline(ingredientsStream, ingredientData, ',')) {
-				stringstream ingredientStream(ingredientData);
-				string ingredientName, pricePerGramStr, weightGramStr;
 
-				getline(ingredientStream, ingredientName, ':');
-				getline(ingredientStream, pricePerGramStr, ':');
-				getline(ingredientStream, weightGramStr, ':');
+			try {
+				getline(ss, name, '#');
+				getline(ss, priceStr, '#');
+				getline(ss, description, '#');
+				getline(ss, ingredientsStr, '#');
 
-				float pricePerGram = stof(pricePerGramStr);
-				float weightGram = stof(weightGramStr);
+				float price = stof(priceStr);
+				DoubleLinkedList<Ingridient> ingredients;
+				stringstream ingredientsStream(ingredientsStr);
+				string ingredientData;
 
-				Ingridient ingredient(ingredientName, pricePerGram, weightGram);
-				ingredients.AddEnd(ingredient);
+				while (getline(ingredientsStream, ingredientData, ',')) {
+					stringstream ingredientStream(ingredientData);
+					string ingredientName, pricePerGramStr, weightGramStr;
+
+					getline(ingredientStream, ingredientName, ':');
+					getline(ingredientStream, pricePerGramStr, ':');
+					getline(ingredientStream, weightGramStr, ':');
+
+					float pricePerGram = stof(pricePerGramStr);
+					float weightGram = stof(weightGramStr);
+
+					Ingridient ingredient(ingredientName, pricePerGram, weightGram);
+					ingredients.AddEnd(ingredient);
+
+				}
+
+				Food food(ingredients, name, description);
+				food.SetPrice(price);
+				history.AddEnd(food);
+
+				cout << endl;
+				cout << "Food: " << food.GetName() << ", Price: " << food.GetPrice()
+					<< ", Description: " << food.GetDescription() << endl;
+				cout << "______________________________________________________" << endl;
+				cout << endl;
+				cout << endl;
+				
 			}
-			Food food(ingredients, name, description);
-			food.SetPrice(price);
-			history.AddEnd(food);
+			catch (const std::exception& e) {
+
+				continue;
+			}
 		}
 
 		fs.close();
@@ -390,7 +417,7 @@ public:
 
 		while (getline(fs, row)) {
 			if (row.rfind("[User:", 0) == 0) {
-				
+
 				string currentUser = row.substr(7, row.length() - 8);
 				userFound = (currentUser == username);
 				continue;
@@ -643,7 +670,7 @@ class Restaurant {
 public:
 	DoubleLinkedList<Food>menu;
 	DoubleLinkedList<Ingridient>stock;
-	Restaurant() {
+	Restaurant() : wallet(0) {
 		count++;
 	}
 
@@ -797,7 +824,7 @@ public:
 	}
 	void IncreaseWallet(string cardNumber, int month, int year, string cvv, float new_money) {
 		if (cardNumber.length() == 16 && cvv.length() == 3 && (month > 0 && month < 13)) {
-			wallet += new_money;
+			this->wallet += new_money;
 		}
 		else {
 			throw string("Wrong card details...");
@@ -1001,6 +1028,7 @@ void SetColor(int color) {
 void main() {
 	Admin admin;
 	Restaurant restaurant;
+	User user;
 
 
 	try
@@ -1068,8 +1096,9 @@ void main() {
 						cout << "|10.Add ingridient" << endl;
 						cout << "|11.Increase budget" << endl;
 						cout << "|12.Update meal" << endl;
-						cout << "|13.Show restaurant's budget" << endl;
-						cout << "|14.Back to register" << endl;
+						cout << "|13.Show sell history" << endl;
+						cout << "|14.Show restaurant's budget" << endl;
+						cout << "|15.Back to register" << endl;
 
 						cout << "Choose: ";
 						cin >> choice2;
@@ -1360,9 +1389,15 @@ void main() {
 						}
 						else if (choice2 == 13) {
 							system("cls");
-							cout << "Restaurant's budget: " << restaurant.GetRestaurantsWallet() << endl;
+							
+							user.ReadFromFileHistory(user.history);
+
 						}
 						else if (choice2 == 14) {
+							system("cls");
+							cout << "Restaurant's budget: " << restaurant.GetRestaurantsWallet() << endl;
+						}
+						else if (choice2 == 15) {
 							system("cls");
 							main();
 						}
@@ -1538,11 +1573,8 @@ void main() {
 											try
 											{
 												cout << "Successfully bought..." << endl;
-												
-												restaurant.IncreaseWallet(cardNumber, month, year, cvv,user1.GetTotalPriceCard());
+												restaurant.IncreaseWallet(cardNumber, month, year, cvv, user1.GetTotalPriceCard());
 												user1.AddToHistoryList(user1.card);
-
-												
 												i = 3;
 												restaurant.ShowAllFoods();
 												for (size_t i = 0; i < user1.card.Size(); )
@@ -1559,8 +1591,6 @@ void main() {
 												i--;
 											}
 										}
-
-
 									}
 									else if (choice6 == 2) {
 										restaurant.ShowAllFoods();
