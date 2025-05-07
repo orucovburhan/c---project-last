@@ -44,13 +44,13 @@ public:
 		size++;
 
 	}
-	// Add these methods to enable range-based for loops
+	
 	T* begin() {
 		return head ? &head->data : nullptr;
 	}
 
 	T* end() {
-		return nullptr; // Indicates the end of the list
+		return nullptr; 
 	}
 
 	const T* begin() const {
@@ -58,7 +58,7 @@ public:
 	}
 
 	const T* end() const {
-		return nullptr; // Indicates the end of the list
+		return nullptr;
 	}
 	DoubleLinkedList(const DoubleLinkedList& other) {
 		Node* current = other.head; 
